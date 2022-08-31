@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.mapper.UserFollowMapper">
+    <sql id="columns">
+        id,user_id,house_id,create_time,update_time,is_deleted
+    </sql>
+    <select id="getByUserIdAndHouseId" resultType="UserFollow">
+        select <include refid="columns"/>
+        from user_follow
+        where user_id = #{userId}
+        and house_id = #{houseId}
+        and is_deleted = 0
+    </select>
+
+    <delete id="delete">
+        delete from user_follow
+        where id = #{id}
+    </delete>
+
+    <insert id="insert">
+        insert into user_follow(user_id,house_id)
+        values (#{userId},#{houseId})
+    </insert>
+
+    <select id="findListPage" resultType="UserFollowVo">
+        select uf.id ,uf.house_id ,uf.create_time,
+        (select name from hse_community where id = hh.community_id) communityName,
+        hh.name,hh.build_area,hh.total_price,hh.default_image_url,
+        hh.house_type_id,hh.floor_id,hh.direction_id,
+        (select name from hse_dict where id = hh.house_type_id) houseTypeName,
+        (select name from hse_dict where id = hh.floor_id) floorName,
+        (select name from hse_dict where id = hh.direction_id) directionName
+        from user_follow uf
+        left outer join hse_house hh on hh.id = uf.house_id
+        where uf.user_id = #{userId}
+        and uf.is_deleted = 0
+        and hh.is_deleted = 0
+    </select>
+
+</mapper>
